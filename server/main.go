@@ -5,6 +5,7 @@ import (
 	"./dingtalk"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
+	"net/http"
 )
 
 func main(){
@@ -19,10 +20,25 @@ func main(){
 		e.File("/", "public/index.html")
 		e.Use(middleware.Logger())
 		e.Use(middleware.Recover())
-		//e.GET("/user", func(c echo.Context) error {
-		//	code := c.QueryParam("code")
-		//
-		//})
+		e.GET("/user", func(c echo.Context) error {
+			code := c.QueryParam("code")
+			userIdRes, err := d.UserIDByCode(code)
+			if err == nil{
+				if userIdRes.ErrCode != 0 {
+					return c.JSON(http.StatusOK, userIdRes)
+				} else {
+					userInfoRes, err := d.UserInfoByUserID(userIdRes.UserID)
+					if err == nil{
+						if userInfoRes.ErrCode != 0{
+							return c.JSON(http.StatusOK, userInfoRes)
+						}
+						return c.JSON(http.StatusOK, userInfoRes)
+					}
+					return err
+				}
+			}
+			return err
+		})
 		e.Logger.Fatal(e.Start(":8080"))
 	}
 }

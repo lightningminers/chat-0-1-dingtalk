@@ -31,6 +31,41 @@ type UserIDResponse struct {
 	SysLevel int `json:"sys_level"`
 }
 
+type UserInfoResponse struct {
+	OAPIResponse
+	UserID          string `json:"userid"`
+	OpenID          string `json:"openid"`
+	Name            string
+	Tel             string
+	WorkPlace       string
+	Remark          string
+	Mobile          string
+	Email           string
+	OrgEmail        string
+	Active          bool
+	IsAdmin         bool
+	IsBoos          bool
+	DingID          string
+	UnionID         string
+	IsHide          bool
+	Department      []int
+	Position        string
+	Avatar          string
+	Jobnumber       string
+	IsSenior        bool
+	StateCode       string
+	OrderInDepts    string
+	IsLeaderInDepts string
+	Extattr         interface{}
+	Roles           []Roles
+}
+
+type Roles struct {
+	ID        int `json:"id"`
+	Name      string
+	GroupName string
+}
+
 type AccessTokenResponse struct {
 	OAPIResponse
 	AccessToken string `json:"access_token"`
@@ -85,6 +120,10 @@ func (d *DTClient) UserIDByCode(code string) (UserIDResponse, error){
 	return  data, err
 }
 
-func (d *DTClient) UserInfoByUserID(userID string){
-
+func (d *DTClient) UserInfoByUserID(userID string)(UserInfoResponse, error){
+	var data UserInfoResponse
+	params := url.Values{}
+	params.Add("userid", userID)
+	err := d.httpRequest("user/get", params, nil, &data)
+	return  data, err
 }

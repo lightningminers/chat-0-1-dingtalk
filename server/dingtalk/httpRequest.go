@@ -10,6 +10,14 @@ import (
 
 func (d *DTClient) httpRequest(path string, params url.Values, requestData interface{}, responseData interface{}) error{
 	var request *http.Request
+	if d.AccessToken != ""{
+		if params == nil{
+			params = url.Values{}
+		}
+		if params.Get("access_token") == ""{
+			params.Set("access_token", d.AccessToken)
+		}
+	}
 	requestURL := OAPIURL + path + "?" + params.Encode()
 	client := d.HttpClient
 	if requestData == nil{
