@@ -6,6 +6,10 @@ import router from './router'
 
 Vue.config.productionTip = false
 
+dd.error(function(err){
+  alert('dd error' + JSON.stringify(err))
+})
+
 /* eslint-disable no-new */
 new Vue({
   el: '#app',

@@ -13,6 +13,17 @@ func main(){
 	CorpSecret := os.Getenv("CorpSecret")
 	d := dingtalk.New(CorpID, CorpSecret)
 	err := d.RefreshAccessToken()
+	refreshAT := func(next echo.HandlerFunc) echo.HandlerFunc{
+		return func(c echo.Context) error {
+			err := d.RefreshAccessToken()
+			if err != nil{
+					return c.JSON(http.StatusOK, map[string]string{"error": "refresh access_token error"})
+			} else {
+					next(c)
+			}
+			return err
+		}
+	}
 	if err != nil{
 		panic("钉钉服务器错误")
 	} else {
@@ -20,6 +31,11 @@ func main(){
 		e.File("/", "public/index.html")
 		e.Use(middleware.Logger())
 		e.Use(middleware.Recover())
+		e.GET("/get_config", func(c echo.Context) error {
+			return c.JSON(http.StatusOK, map[string]string{
+				"CorpID": CorpID,
+			})
+		})
 		e.GET("/user", func(c echo.Context) error {
 			code := c.QueryParam("code")
 			userIdRes, err := d.UserIDByCode(code)
@@ -38,7 +54,7 @@ func main(){
 				}
 			}
 			return err
-		})
+		}, refreshAT)
 		e.Logger.Fatal(e.Start(":8080"))
 	}
 }
